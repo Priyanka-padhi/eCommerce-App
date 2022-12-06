@@ -48,23 +48,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 System.out.println("Jwt Token is expired");
             }
         } else {
-            System.out.println("Invalid JWT Token");
+            System.out.println("JWT Token does not start with Bearer");
         }
-        if(userName != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-           UserDetails userDetails = jwtService.loadUserByUsername(userName);
+                UserDetails userDetails = jwtService.loadUserByUsername(userName);
 
-           if(jwtUtil.validateToken(jwtToken, userDetails)){
+                if (jwtUtil.validateToken(jwtToken, userDetails)) {
 
-               UsernamePasswordAuthenticationToken authToken =
-                       new UsernamePasswordAuthenticationToken(userDetails,
-                               null, userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails,
+                                    null, userDetails.getAuthorities());
 
-               authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-               SecurityContextHolder.getContext().setAuthentication(authToken);
-           }
-        }
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
 
         filterChain.doFilter(httpServletRequest,httpServletResponse);
     }
