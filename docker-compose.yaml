@@ -1,0 +1,23 @@
+version: '3.5'
+
+services:
+
+  postgres:
+    image: postgres
+    container_name: pgsql11
+    hostname: localhost
+    environment:
+
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 123
+
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/data/postgres
+
+    restart: always
+
+volumes:
+  pg_data:
+    driver: local
