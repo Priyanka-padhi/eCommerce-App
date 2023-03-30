@@ -33,6 +33,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Value("${jwt_token_prefix}")
     public String TOKEN_PREFIX;
 
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request)
+            throws ServletException {
+        String path = request.getRequestURI();
+        return "/login".equals(path) || "/registerUser".equals(path) || "/createNewRole".equals(path) ;
+    }
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
 
@@ -47,7 +54,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             try {
 
-               userName = jwtUtil.getUserNameFromToken(jwtToken);
+                userName = jwtUtil.getUserNameFromToken(jwtToken);
 
             } catch (IllegalArgumentException e) {
                 System.out.println("Unable to get Jwt Token");
@@ -60,22 +67,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UserDetails userDetails = jwtService.loadUserByUsername(userName);
+            UserDetails userDetails = jwtService.loadUserByUsername(userName);
 
-                if (jwtUtil.validateToken(jwtToken, userDetails)) {
+            if (jwtUtil.validateToken(jwtToken, userDetails)) {
 
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails,
-                                    jwtToken, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails,
+                                jwtToken, userDetails.getAuthorities());
 
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                    logger.info("Authenticated user "+ userName+ " setting security context");
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                logger.info("Authenticated user "+ userName+ " setting security context");
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+        }
 
         filterChain.doFilter(httpServletRequest,httpServletResponse);
     }
+
 }
 
 /*

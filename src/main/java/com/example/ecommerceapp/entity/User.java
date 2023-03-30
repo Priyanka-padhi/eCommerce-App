@@ -20,7 +20,7 @@ public class User {
     private String lastName;
 
 
-    @JsonIgnore
+
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
