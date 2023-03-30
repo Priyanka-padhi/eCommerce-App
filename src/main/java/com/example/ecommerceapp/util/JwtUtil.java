@@ -7,11 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.xml.crypto.Data;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 @Component
@@ -21,7 +17,8 @@ public class JwtUtil {
     @Value("${jwt_secret_key}")
     private String secret_key;
 
-    private static final int TOKEN_VALIDITY = 3600 * 5;
+    @Value("${jwt_token_validity}")
+    private long TOKEN_VALIDITY;
 
     public String getUserNameFromToken(String token){
        return getClaimFromToken(token,Claims::getSubject);
@@ -53,10 +50,8 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails){
 
-        Map<String ,Object> claims = new HashMap<>();
-
         return Jwts.builder()
-                .setClaims(claims)
+                .claim("Role",userDetails.getAuthorities())
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY * 1000))
@@ -66,3 +61,9 @@ public class JwtUtil {
     }
 
 }
+
+/*
+Spring Security Context holds the information of an authenticated user represented as an Authentication object.
+In order to construct this Authentication object, we need to provide a UsernamePasswordAuthenticationToken which will later be used by our AuthenticationManager (Which we configured previously)
+to Authenticate our user. To construct, we are passing along the user details as well as a collection of authorities(roles) that we parse from the JWT Token.
+ */
