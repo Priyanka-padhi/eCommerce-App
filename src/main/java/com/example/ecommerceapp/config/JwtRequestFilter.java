@@ -90,4 +90,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 JwtRequestFilter which will filter out requests that have JWT as header and translate that to something Spring Security can understand using the methods
 from the Token Provider we just created. This extends the OncePerRequestFilter meaning it's going to look for the JWT token in every single request and update the SecurityContext.
+
+FilterChain:-
+A FilterChain is an object provided by the servlet container to the developer giving a view into the invocation chain of a filtered request for a resource.
+Filters use the FilterChain to invoke the next filter in the chain, or if the calling filter is the last filter in the chain, to invoke the resource at the end of the chain.
+FilterChain will be used to continue the flow of the request. void destroy()  is called by the Spring web container to indicate to the filter that it will stop being active.
+
+
+
+
+
+
  */
