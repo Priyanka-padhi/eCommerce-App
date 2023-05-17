@@ -1,7 +1,9 @@
 package com.example.ecommerceapp.controller;
 
 
+import com.example.ecommerceapp.entity.EmailNotification;
 import com.example.ecommerceapp.entity.User;
+import com.example.ecommerceapp.service.EmailNotificationService;
 import com.example.ecommerceapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +18,18 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    EmailNotificationService notificationService;
 
         @PostMapping("/registerUser")
         public ResponseEntity<String> registerNewUser(@RequestBody User user) throws MessagingException {
 
             return userService.registerNewUser(user);
         }
-    @GetMapping("/sendMail")
-    public ResponseEntity<String> sendMail() throws MessagingException {
+    @PostMapping("/sendMail")
+    public ResponseEntity<String> sendMail(@ModelAttribute EmailNotification emailNotification) throws MessagingException {
 
-        return userService.sendEmailWithAttachment();
+        return userService.sendEmailWithAttachment(emailNotification);
     }
 
     @GetMapping("/forAdmin")
