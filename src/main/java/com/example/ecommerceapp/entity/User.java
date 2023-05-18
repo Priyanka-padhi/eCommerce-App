@@ -23,6 +23,8 @@ public class User {
 
     private String password;
 
+    private String filePath;
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USER_ROLE", joinColumns = {@JoinColumn(name = "user_id")},inverseJoinColumns = {@JoinColumn(name = "role_id")})
     private Set<Role> role;
@@ -72,7 +74,11 @@ public class User {
     }
 
 
+    public String getFilePath() {
+        return filePath;
+    }
 
-
-
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 }

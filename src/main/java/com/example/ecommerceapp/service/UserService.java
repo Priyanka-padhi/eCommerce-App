@@ -4,16 +4,25 @@ import com.example.ecommerceapp.dao.UserDao;
 import com.example.ecommerceapp.entity.EmailNotification;
 import com.example.ecommerceapp.entity.User;
 import com.example.ecommerceapp.util.EmailService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
 
 @Service
+@Slf4j
 public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -29,13 +38,18 @@ public class UserService {
     @Value("${spring.mail.username}")
     private String adminEmail;
 
+    private final String PATH = "/home/dell/Documents/";
 
-    public ResponseEntity<String> registerNewUser(User user) throws MessagingException {
+
+
+
+    public ResponseEntity<String> registerNewUser(User user, MultipartFile file) throws IOException {
 //        if(userDao.existsById(user.getUserName())){
 //            return new ResponseEntity<>("Email already exist", HttpStatus.BAD_REQUEST);
 //        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.save(user);
+        uploadFile(file,user);
 
         String subject = "E-Commerce Application | User Registration Notification";
         String email = user.getUserName();
@@ -65,7 +79,33 @@ public class UserService {
         }
     }
 
+    public void uploadFile(MultipartFile file,User user)throws IOException {
+        String name = user.getUserName();
+        String path = PATH + name;
+        File dirName = new File(path);
+        boolean dir = dirName.mkdir();
+        System.out.println(dir);
+        String fullPath = path + "/" + file.getOriginalFilename();
+        user.setFilePath(fullPath);
+        file.transferTo(new File(fullPath));
+        userDao.save(user);
+    }
 
+    public void exportToCsv(Writer writer) throws IOException {
+
+        List<User> users =  userDao.findAll();
+
+        try (CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT)) {
+            csvPrinter.printRecord("Email", "FirstName", "LastName");
+            for (User user : users) {
+                csvPrinter.printRecord(user.getUserName(),user.getFirstName(),user.getLastName());
+            }
+        } catch (IOException e) {
+
+            log.error("Error While writing CSV ", e);
+        }
+
+    }
 
     public String getEncodedPassword(String password){
         return passwordEncoder.encode(password);
